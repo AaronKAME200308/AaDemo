@@ -3,7 +3,7 @@ import { Linkedin, Github } from "lucide-react";
 const Footer = () => {
   return (
     <footer className="mt-auto">
-      <div className="py-6 text-center bg-gradient-to-r from-[#4CAF50] to-[#499DDB]">
+      <div className="py-5 text-center bg-gradient-to-r from-[#4CAF50] to-[#499DDB]">
         
         {/* Réseaux sociaux */}
         <div className="flex justify-center gap-6 mb-3">
