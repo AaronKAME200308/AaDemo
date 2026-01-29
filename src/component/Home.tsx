@@ -3,38 +3,98 @@ import { motion } from "framer-motion";
 import { Camera } from "lucide-react";
 
 const Home = () => {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  const mainInputRef = useRef<HTMLInputElement>(null);
+  const subInputRefs = [
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+  ];
 
-  const handleFile = (file: File) => {
+  const [mainPreview, setMainPreview] = useState<string | null>(null);
+  const [subPreviews, setSubPreviews] = useState<(string | null)[]>([
+    "/1.jpg",
+    "/2.jpeg",
+    "/3.jpeg",
+  ]);
+
+  const handleMainFile = (file: File) => {
     if (!file) return;
-    setPreview(URL.createObjectURL(file));
+    setMainPreview(URL.createObjectURL(file));
+  };
+
+  const handleSubFile = (file: File, index: number) => {
+    if (!file) return;
+    const updated = [...subPreviews];
+    updated[index] = URL.createObjectURL(file);
+    setSubPreviews(updated);
   };
 
   return (
     <main className="min-h-screen flex items-center justify-center px-4">
+      <div className="relative w-full max-w-4xl">
 
-      {/* CONTENEUR UNIQUE */}
-      <div className="relative w-full max-w-4xl h-[360px] flex items-center justify-center">
+        {/* 3 DROPBOX SECONDAIRES */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          {subPreviews.map((preview, index) => (
+            <motion.div
+              key={index}
+              onClick={() => subInputRefs[index].current?.click()}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                handleSubFile(e.dataTransfer.files[0], index);
+              }}
+              whileHover={{ scale: 1.03 }}
+              className="
+                h-[140px]
+                w-full
+                flex items-center justify-center
+                cursor-pointer
+                rounded-xl
+                bg-gray-500/20
+                backdrop-blur-lg
+                border border-dashed border-gray-300/60
+                overflow-hidden
+              "
+            >
+              {preview ? (
+                <img
+                  src={preview}
+                  className="w-full h-full object-cover rounded-lg"
+                />
 
-        {/* Image coin bas droit */}
-        <img
-          src="/tomatoes.png"
-          alt=""
-          className="absolute bottom-0 right-0 w-37 h-28 z-50"
-        />
 
-        {/* DROP ZONE CENTRÉE */}
+              ) : (
+                <p className="text-sm text-center bg-clip-text text-transparent bg-gradient-to-r from-[#4CAF50] to-[#499DDB]">
+
+                </p>
+              )}
+
+              <input
+                ref={subInputRefs[index]}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) =>
+                  e.target.files &&
+                  handleSubFile(e.target.files[0], index)
+                }
+              />
+            </motion.div>
+          ))}
+        </div>
+
+        {/* DROPBOX PRINCIPALE */}
         <motion.div
-          onClick={() => inputRef.current?.click()}
+          onClick={() => mainInputRef.current?.click()}
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
             e.preventDefault();
-            handleFile(e.dataTransfer.files[0]);
+            handleMainFile(e.dataTransfer.files[0]);
           }}
           whileHover={{ scale: 1.01 }}
           className="
-            w-[90%] h-[300px]
+            w-full h-[280px]
             flex flex-col items-center justify-center
             cursor-pointer
             rounded-2xl
@@ -42,16 +102,16 @@ const Home = () => {
             backdrop-blur-xl
             border-2 border-dashed border-gray-300/60
             shadow-xl
-            transition
-            hover:bg-gray-500/30
+            mb-6
           "
         >
-          {preview ? (
-            <img
-              src={preview}
-              alt="preview"
-              className="max-h-full max-w-full object-contain rounded-xl"
-            />
+          {mainPreview ? (
+              <img
+                src={mainPreview}
+                className="max-h-full object-contain rounded-xl"
+              />
+
+              
           ) : (
             <>
               {/* Gradient SVG */}
@@ -84,16 +144,13 @@ const Home = () => {
           )}
 
           <input
-            ref={inputRef}
+            ref={mainInputRef}
             type="file"
             accept="image/*"
-            capture="environment"
             className="hidden"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              if (e.target.files && e.target.files[0]) {
-                handleFile(e.target.files[0]);
-              }
-            }}
+            onChange={(e) =>
+              e.target.files && handleMainFile(e.target.files[0])
+            }
           />
         </motion.div>
       </div>
